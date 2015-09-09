@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Talk_Light" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="talk_divider">@color/talk_divider_black</item>
+        <item name="talk_list_selector">@drawable/talk_selector</item>
+        <item name="talk_btn_stacked_selector">@drawable/talk_selector</item>
+        <item name="talk_btn_positive_selector">@drawable/talk_btn_selector</item>
+        <item name="talk_btn_neutral_selector">@drawable/talk_btn_selector</item>
+        <item name="talk_btn_negative_selector">@drawable/talk_btn_selector</item>
+        <item name="android:windowAnimationStyle">@style/Talk_Dialog_Animation</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="Talk_Dark" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="talk_divider">@color/talk_divider_white</item>
+        <item name="talk_list_selector">@drawable/talk_selector_dark</item>
+        <item name="talk_btn_stacked_selector">@drawable/talk_selector_dark</item>
+        <item name="talk_btn_positive_selector">@drawable/talk_btn_selector_dark</item>
+        <item name="talk_btn_neutral_selector">@drawable/talk_btn_selector_dark</item>
+        <item name="talk_btn_negative_selector">@drawable/talk_btn_selector_dark</item>
+        <item name="android:windowAnimationStyle">@style/Talk_Dialog_Animation</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="Talk_Dialog_Animation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_top</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>
+    </style>
+</resources>

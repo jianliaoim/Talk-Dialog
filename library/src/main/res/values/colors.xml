@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="talk_btn_selected">#33969696</color>
+    <color name="talk_btn_selected_dark">#40CBCBCB</color>
+
+    <color name="talk_divider_black">#10000000</color>
+    <color name="talk_divider_white">#10FFFFFF</color>
+
+    <color name="talk_material_blue">#4FC3F7</color>
+
+    <color name="talk_edittext_error">#DD2C00</color>
+</resources>

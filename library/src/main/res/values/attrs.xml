@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="talk_divider" format="color"/>
+    <attr name="talk_dark_theme" format="boolean" />
+    <attr name="talk_background_color" format="color"/>
+
+    <attr name="talk_icon" format="reference" />
+    <attr name="talk_icon_max_size" format="dimension"/>
+    <attr name="talk_icon_limit_icon_to_default_size" format="boolean" />
+
+    <attr name="talk_title_color" format="color" />
+    <attr name="talk_content_color" format="color" />
+
+    <attr name="talk_positive_color" format="color" />
+    <attr name="talk_neutral_color" format="color" />
+    <attr name="talk_negative_color" format="color" />
+    <attr name="talk_widget_color" format="color" />
+
+    <attr name="talk_item_color" format="color" />
+    <attr name="talk_divider_color" format="color" />
+    <attr name="talk_list_selector" format="reference" />
+
+    <attr name="talk_btn_stacked_selector" format="reference" />
+    <attr name="talk_btn_positive_selector" format="reference" />
+    <attr name="talk_btn_neutral_selector" format="reference" />
+    <attr name="talk_btn_negative_selector" format="reference" />
+
+    <attr name="talk_title_gravity" format="enum">
+        <enum name="start" value="0" />
+        <enum name="center" value="1" />
+        <enum name="end" value="2" />
+    </attr>
+
+    <attr name="talk_content_gravity" format="enum">
+        <enum name="start" value="0" />
+        <enum name="center" value="1" />
+        <enum name="end" value="2" />
+    </attr>
+
+    <attr name="talk_btnstacked_gravity" format="enum">
+        <enum name="start" value="0" />
+        <enum name="center" value="1" />
+        <enum name="end" value="2" />
+    </attr>
+
+    <attr name="talk_items_gravity" format="enum">
+        <enum name="start" value="0" />
+        <enum name="center" value="1" />
+        <enum name="end" value="2" />
+    </attr>
+
+    <attr name="talk_buttons_gravity" format="enum">
+        <enum name="start" value="0" />
+        <enum name="center" value="1" />
+        <enum name="end" value="2" />
+    </attr>
+
+    <attr name="talk_medium_font" format="string" />
+    <attr name="talk_regular_font" format="string" />
+</resources>
