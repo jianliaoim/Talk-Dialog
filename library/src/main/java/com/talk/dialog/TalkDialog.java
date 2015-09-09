@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -29,7 +30,10 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import com.talk.dialog.util.DialogUtils;
 import com.talk.dialog.util.TypefaceHelper;
@@ -42,7 +46,11 @@ import java.text.NumberFormat;
  */
 public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener {
 
-    Builder mBuilder;
+    protected Builder mBuilder;
+    protected TextView title;
+    protected ImageView icon;
+    protected TextView content;
+    protected View titleFrame;
 
     @Override
     public void onAttach(Activity activity) {
@@ -57,9 +65,23 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = new Dialog(getActivity(), mBuilder == null ? R.style.Talk_Light : DialogInit.getTheme(mBuilder));
+        WindowManager.LayoutParams parmas = dialog.getWindow().getAttributes();
+        dialog.getWindow().setAttributes(parmas);
+        dialog.setCancelable(mBuilder.cancelable);
         dialog.setCanceledOnTouchOutside(mBuilder.cancelable);
         dialog.setOnShowListener(this);
+        int dividerId = dialog.getContext().getResources()
+                .getIdentifier("android:id/titleDivider", null, null);
+        View divider = dialog.findViewById(dividerId);
+        divider.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         return dialog;
+    }
+
+    public final void setTypeface(TextView target, Typeface t) {
+        if (t == null) return;
+        int flags = target.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG;
+        target.setPaintFlags(flags);
+        target.setTypeface(t);
     }
 
     public void showAllowingStateLoss(FragmentManager manager, String tag) {
@@ -92,7 +114,13 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return inflater.inflate(DialogInit.getInflateLayout(mBuilder), container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        DialogInit.init(this, view);
     }
 
     @Override

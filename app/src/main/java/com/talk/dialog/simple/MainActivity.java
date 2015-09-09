@@ -17,7 +17,13 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.simple).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new TalkDialog.Builder(MainActivity.this).show();
+                new TalkDialog.Builder(MainActivity.this)
+                        .title("哈哈")
+                        .titleColorRes(android.R.color.black)
+                        .content("这是一个dialog")
+                        .contentColorRes(android.R.color.holo_red_dark)
+                        .titleBackgroundColorRes(android.R.color.holo_green_dark)
+                        .show();
             }
         });
     }
