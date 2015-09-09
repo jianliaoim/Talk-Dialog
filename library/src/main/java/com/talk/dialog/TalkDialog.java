@@ -1,5 +1,7 @@
 package com.talk.dialog;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
@@ -38,12 +40,78 @@ import java.text.NumberFormat;
 /**
  * Created by wlanjie on 15/9/9.
  */
-public class TalkDialog extends DialogFragment {
+public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener {
+
+    Builder mBuilder;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Bundle args = getArguments();
+        if (args != null) {
+            mBuilder = (Builder) args.getSerializable(Builder.ARGS_KEY);
+        }
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = new Dialog(getActivity(), mBuilder == null ? R.style.Talk_Light : DialogInit.getTheme(mBuilder));
+        dialog.setCanceledOnTouchOutside(mBuilder.cancelable);
+        dialog.setOnShowListener(this);
+        return dialog;
+    }
 
     public void showAllowingStateLoss(FragmentManager manager, String tag) {
         FragmentTransaction ft = manager.beginTransaction();
         ft.add(this, tag);
         ft.commitAllowingStateLoss();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getDialog() != null && getDialog().isShowing() && !mBuilder.disableAnimation) {
+            getDialog().getWindow().getDecorView().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    getDialog().getWindow().setWindowAnimations(R.style.Talk_Dialog_Animation);
+                }
+            }, 100);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getDialog() != null && !mBuilder.disableAnimation) {
+            getDialog().getWindow().setWindowAnimations(0);
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+
+    }
+
+    @Override
+    public void onShow(DialogInterface dialog) {
+
     }
 
     /**
