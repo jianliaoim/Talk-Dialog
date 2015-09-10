@@ -23,6 +23,37 @@ public class MainActivity extends AppCompatActivity {
                         .content("这是一个dialog")
                         .contentColorRes(android.R.color.holo_red_dark)
                         .titleBackgroundColorRes(android.R.color.holo_green_dark)
+                        .positiveText("确定")
+                        .positiveColorRes(android.R.color.black)
+                        .negativeText("取消")
+                        .negativeColorRes(android.R.color.holo_blue_bright)
+                        .neutralText("哈哈")
+                        .neutralColorRes(android.R.color.holo_red_dark)
+                        .backgroundColorRes(android.R.color.holo_blue_bright)
+                        .radiusRes(R.dimen.radius)
+                        .customView(R.layout.custom, false)
+                        .show();
+            }
+        });
+
+        findViewById(R.id.list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new TalkDialog.Builder(MainActivity.this)
+                        .title("哈哈")
+                        .titleColorRes(android.R.color.black)
+                        .content("这是一个dialog")
+                        .contentColorRes(android.R.color.holo_red_dark)
+                        .titleBackgroundColorRes(android.R.color.holo_green_dark)
+                        .positiveText("确定")
+                        .positiveColorRes(android.R.color.black)
+                        .negativeText("取消")
+                        .negativeColorRes(android.R.color.holo_blue_bright)
+                        .neutralText("哈哈")
+                        .neutralColorRes(android.R.color.holo_red_dark)
+                        .backgroundColorRes(android.R.color.holo_blue_bright)
+                        .radiusRes(R.dimen.radius)
+                        .items(new CharSequence[]{"item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9"})
                         .show();
             }
         });

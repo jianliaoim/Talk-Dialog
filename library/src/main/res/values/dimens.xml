@@ -2,6 +2,7 @@
 <resources>
     <dimen name="talk_dialog_margin">40dp</dimen>
 
+    <dimen name="talk_dialog_top_frame_margin">4dp</dimen>
     <!-- Margin around the dialog, excluding the button bar -->
     <dimen name="talk_dialog_frame_margin">24dp</dimen>
     <!-- Total title margin bottom is 16, but we split this between content and title -->

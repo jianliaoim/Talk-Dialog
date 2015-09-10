@@ -30,27 +30,45 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.talk.dialog.internal.TalkButton;
 import com.talk.dialog.util.DialogUtils;
 import com.talk.dialog.util.TypefaceHelper;
 
 import java.io.Serializable;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by wlanjie on 15/9/9.
  */
-public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener {
+public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener, View.OnClickListener, AdapterView.OnItemClickListener {
 
     protected Builder mBuilder;
     protected TextView title;
     protected ImageView icon;
     protected TextView content;
     protected View titleFrame;
+    protected TalkButton positiveButton;
+    protected TalkButton neutralButton;
+    protected TalkButton negativeButton;
+    protected LinearLayout customViewFrame;
+    protected ListType listType;
+    protected ListView listView;
+    protected List<Integer> selectedIndicesList;
 
     @Override
     public void onAttach(Activity activity) {
@@ -61,12 +79,14 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
         }
     }
 
+    public Builder getBuilder() {
+        return mBuilder;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = new Dialog(getActivity(), mBuilder == null ? R.style.Talk_Light : DialogInit.getTheme(mBuilder));
-        WindowManager.LayoutParams parmas = dialog.getWindow().getAttributes();
-        dialog.getWindow().setAttributes(parmas);
         dialog.setCancelable(mBuilder.cancelable);
         dialog.setCanceledOnTouchOutside(mBuilder.cancelable);
         dialog.setOnShowListener(this);
@@ -131,6 +151,156 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
         super.onDestroyView();
     }
 
+    protected enum ListType {
+        REGULAR, SINGLE, MULTI;
+
+        public static int getLayoutForType(ListType type) {
+            switch (type) {
+                case REGULAR:
+                    return R.layout.talk_listitem;
+                case SINGLE:
+                    return R.layout.talk_listitem_singlechoice;
+                case MULTI:
+                    return R.layout.talk_listitem_multichoice;
+                default:
+                    throw new IllegalArgumentException("Not a valid list type");
+            }
+        }
+    }
+
+    public static class NotImplementedException extends Error {
+        public NotImplementedException(@SuppressWarnings("SameParameterValue") String message) {
+            super(message);
+        }
+    }
+
+    public static class DialogException extends WindowManager.BadTokenException {
+        public DialogException(@SuppressWarnings("SameParameterValue") String message) {
+            super(message);
+        }
+    }
+
+    protected final Drawable getListSelector() {
+        if (mBuilder.listSelector != 0)
+            return ResourcesCompat.getDrawable(mBuilder.context.getResources(), mBuilder.listSelector, null);
+        final Drawable d = DialogUtils.resolveDrawable(mBuilder.context, R.attr.talk_list_selector);
+        if (d != null) return d;
+        return DialogUtils.resolveDrawable(getActivity(), R.attr.talk_list_selector);
+    }
+
+    /* package */ Drawable getButtonSelector(DialogAction which, boolean isStacked) {
+        if (isStacked) {
+            if (mBuilder.btnSelectorStacked != 0)
+                return ResourcesCompat.getDrawable(mBuilder.context.getResources(), mBuilder.btnSelectorStacked, null);
+            final Drawable d = DialogUtils.resolveDrawable(mBuilder.context, R.attr.talk_btn_stacked_selector);
+            if (d != null) return d;
+            return DialogUtils.resolveDrawable(getActivity(), R.attr.talk_btn_stacked_selector);
+        } else {
+            switch (which) {
+                default: {
+                    if (mBuilder.btnSelectorPositive != 0)
+                        return ResourcesCompat.getDrawable(mBuilder.context.getResources(), mBuilder.btnSelectorPositive, null);
+                    final Drawable d = DialogUtils.resolveDrawable(mBuilder.context, R.attr.talk_btn_positive_selector);
+                    if (d != null) return d;
+                    return DialogUtils.resolveDrawable(getActivity(), R.attr.talk_btn_positive_selector);
+                }
+                case NEUTRAL: {
+                    if (mBuilder.btnSelectorNeutral != 0)
+                        return ResourcesCompat.getDrawable(mBuilder.context.getResources(), mBuilder.btnSelectorNeutral, null);
+                    final Drawable d = DialogUtils.resolveDrawable(mBuilder.context, R.attr.talk_btn_neutral_selector);
+                    if (d != null) return d;
+                    return DialogUtils.resolveDrawable(getActivity(), R.attr.talk_btn_neutral_selector);
+                }
+                case NEGATIVE: {
+                    if (mBuilder.btnSelectorNegative != 0)
+                        return ResourcesCompat.getDrawable(mBuilder.context.getResources(), mBuilder.btnSelectorNegative, null);
+                    final Drawable d = DialogUtils.resolveDrawable(mBuilder.context, R.attr.talk_btn_negative_selector);
+                    if (d != null) return d;
+                    return DialogUtils.resolveDrawable(getActivity(), R.attr.talk_btn_negative_selector);
+                }
+            }
+        }
+    }
+
+    private boolean sendSingleChoiceCallback(View v) {
+        CharSequence text = null;
+        if (mBuilder.selectedIndex >= 0) {
+            text = mBuilder.items[mBuilder.selectedIndex];
+        }
+        return mBuilder.listCallbackSingleChoice.onSelection(this, v, mBuilder.selectedIndex, text);
+    }
+
+    private boolean sendMultichoiceCallback() {
+        Collections.sort(selectedIndicesList); // make sure the indicies are in order
+        List<CharSequence> selectedTitles = new ArrayList<>();
+        for (Integer i : selectedIndicesList) {
+            selectedTitles.add(mBuilder.items[i]);
+        }
+        return mBuilder.listCallbackMultiChoice.onSelection(this,
+                selectedIndicesList.toArray(new Integer[selectedIndicesList.size()]),
+                selectedTitles.toArray(new CharSequence[selectedTitles.size()]));
+
+    }
+
+    protected final void checkIfListInitScroll() {
+        if (listView == null)
+            return;
+        listView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    //noinspection deprecation
+                    listView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    listView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+
+                if (listType == ListType.SINGLE || listType == ListType.MULTI) {
+                    int selectedIndex;
+                    if (listType == ListType.SINGLE) {
+                        if (mBuilder.selectedIndex < 0)
+                            return;
+                        selectedIndex = mBuilder.selectedIndex;
+                    } else {
+                        if (mBuilder.selectedIndices == null || mBuilder.selectedIndices.length == 0)
+                            return;
+                        List<Integer> indicesList = Arrays.asList(mBuilder.selectedIndices);
+                        Collections.sort(indicesList);
+                        selectedIndex = indicesList.get(0);
+                    }
+                    if (listView.getLastVisiblePosition() < selectedIndex) {
+                        final int totalVisible = listView.getLastVisiblePosition() - listView.getFirstVisiblePosition();
+                        // Scroll so that the selected index appears in the middle (vertically) of the ListView
+                        int scrollIndex = selectedIndex - (totalVisible / 2);
+                        if (scrollIndex < 0) scrollIndex = 0;
+                        final int fScrollIndex = scrollIndex;
+                        listView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listView.requestFocus();
+                                listView.setSelection(fScrollIndex);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Sets the dialog ListView's adapter and it's item click listener.
+     */
+    protected final void invalidateList() {
+        if (listView == null)
+            return;
+        else if ((mBuilder.items == null || mBuilder.items.length == 0) && mBuilder.adapter == null)
+            return;
+        // Set up list with adapter
+        listView.setAdapter(mBuilder.adapter);
+        if (listType != null || mBuilder.listCallbackCustom != null)
+            listView.setOnItemClickListener(this);
+    }
+
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
@@ -140,6 +310,94 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
     @Override
     public void onShow(DialogInterface dialog) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mBuilder.listCallbackCustom != null) {
+            // Custom adapter
+            CharSequence text = null;
+            if (view instanceof TextView)
+                text = ((TextView) view).getText();
+            mBuilder.listCallbackCustom.onSelection(this, view, position, text);
+        } else if (listType == null || listType == ListType.REGULAR) {
+            // Default adapter, non choice mode
+            if (mBuilder.autoDismiss) {
+                // If auto dismiss is enabled, dismiss the dialog when a list item is selected
+                dismiss();
+            }
+            mBuilder.listCallback.onSelection(this, view, position, mBuilder.items[position]);
+        } else {
+            // Default adapter, choice mode
+            if (listType == ListType.MULTI) {
+                final boolean shouldBeChecked = !selectedIndicesList.contains(Integer.valueOf(position));
+                final CheckBox cb = (CheckBox) view.findViewById(R.id.control);
+                if (shouldBeChecked) {
+                    // Add the selection to the states first so the callback includes it (when alwaysCallMultiChoiceCallback)
+                    selectedIndicesList.add(position);
+                    if (mBuilder.alwaysCallMultiChoiceCallback) {
+                        // If the checkbox wasn't previously selected, and the callback returns true, add it to the states and check it
+                        if (sendMultichoiceCallback()) {
+                            cb.setChecked(true);
+                        } else {
+                            // The callback cancelled selection, remove it from the states
+                            selectedIndicesList.remove(Integer.valueOf(position));
+                        }
+                    } else {
+                        // The callback was not used to check if selection is allowed, just select it
+                        cb.setChecked(true);
+                    }
+                } else {
+                    // The checkbox was unchecked
+                    selectedIndicesList.remove(Integer.valueOf(position));
+                    cb.setChecked(false);
+                    if (mBuilder.alwaysCallMultiChoiceCallback)
+                        sendMultichoiceCallback();
+                }
+            } else if (listType == ListType.SINGLE) {
+                boolean allowSelection = true;
+                final TalkDialogAdapter adapter = (TalkDialogAdapter) mBuilder.adapter;
+                final RadioButton radio = (RadioButton) view.findViewById(R.id.control);
+
+                if (mBuilder.autoDismiss && mBuilder.positiveText == null) {
+                    // If auto dismiss is enabled, and no action button is visible to approve the selection, dismiss the dialog
+                    dismiss();
+                    // Don't allow the selection to be updated since the dialog is being dismissed anyways
+                    allowSelection = false;
+                    // Update selected index and send callback
+                    mBuilder.selectedIndex = position;
+                    sendSingleChoiceCallback(view);
+                } else if (mBuilder.alwaysCallSingleChoiceCallback) {
+                    int oldSelected = mBuilder.selectedIndex;
+                    // Temporarily set the new index so the callback uses the right one
+                    mBuilder.selectedIndex = position;
+                    // Only allow the radio button to be checked if the callback returns true
+                    allowSelection = sendSingleChoiceCallback(view);
+                    // Restore the old selected index, so the state is updated below
+                    mBuilder.selectedIndex = oldSelected;
+                }
+                // Update the checked states
+                if (allowSelection && mBuilder.selectedIndex != position) {
+                    mBuilder.selectedIndex = position;
+                    // Uncheck the previously selected radio button
+                    if (adapter.mRadioButton == null) {
+                        adapter.mInitRadio = true;
+                        adapter.notifyDataSetChanged();
+                    }
+                    if (adapter.mRadioButton != null)
+                        adapter.mRadioButton.setChecked(false);
+                    // Check the newly selected radio button
+                    radio.setChecked(true);
+                    adapter.mRadioButton = radio;
+                }
+            }
+
+        }
     }
 
     /**
@@ -360,6 +618,11 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
 
         public Builder radius(float radius) {
             this.radius = radius;
+            return this;
+        }
+
+        public Builder radiusRes(@DimenRes int radius) {
+            radius(context.getResources().getDimension(radius));
             return this;
         }
 
@@ -1067,6 +1330,7 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
             return dialog;
         }
     }
+
     /**
      * A callback used for regular list dialogs.
      */

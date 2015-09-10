@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/talk_dialog_frame_margin"
+    android:paddingRight="@dimen/talk_dialog_frame_margin">
+
+    <com.talk.dialog.internal.TalkButton
+        android:id="@+id/buttonDefaultNeutral"
+        style="@style/Talk_ActionButton.Text"
+        tools:text="Neutral"/>
+
+    <com.talk.dialog.internal.TalkButton
+        android:id="@+id/buttonDefaultPositive"
+        style="@style/Talk_ActionButton.Text"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:paddingLeft="@dimen/talk_button_textpadding_horizontal"
+        tools:text="Positive"/>
+
+    <com.talk.dialog.internal.TalkButton
+        android:id="@+id/buttonDefaultNegative"
+        style="@style/Talk_ActionButton.Text"
+        android:layout_toLeftOf="@id/buttonDefaultPositive"
+        android:layout_toStartOf="@id/buttonDefaultPositive"
+        android:paddingLeft="@dimen/talk_button_textpadding_horizontal"
+        android:paddingRight="@dimen/talk_button_textpadding_horizontal"
+        tools:text="Negative"/>
+</RelativeLayout>

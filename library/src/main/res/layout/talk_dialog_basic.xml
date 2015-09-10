@@ -24,4 +24,5 @@
             android:paddingBottom="@dimen/talk_dialog_frame_margin"/>
     </ScrollView>
 
+    <include layout="@layout/talk_stub_actionbuttons" />
 </LinearLayout>
