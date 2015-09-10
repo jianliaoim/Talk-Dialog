@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,7 @@ import java.util.List;
 /**
  * Created by wlanjie on 15/9/9.
  */
-public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener, View.OnClickListener, AdapterView.OnItemClickListener {
+public class TalkDialog extends DialogFragment implements DialogInterface.OnShowListener, View.OnClickListener, AdapterView.OnItemClickListener, DialogInterface.OnKeyListener {
 
     protected Builder mBuilder;
     protected TextView title;
@@ -90,6 +91,8 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
         dialog.setCancelable(mBuilder.cancelable);
         dialog.setCanceledOnTouchOutside(mBuilder.cancelable);
         dialog.setOnShowListener(this);
+        dialog.setOnDismissListener(this);
+        dialog.setOnKeyListener(this);
         int dividerId = dialog.getContext().getResources()
                 .getIdentifier("android:id/titleDivider", null, null);
         View divider = dialog.findViewById(dividerId);
@@ -151,6 +154,14 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
             getDialog().setDismissMessage(null);
         }
         super.onDestroyView();
+    }
+
+    @Override
+    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        if (mBuilder.keyListener != null) {
+            mBuilder.keyListener.onKey(dialog, keyCode, event);
+        }
+        return false;
     }
 
     protected enum ListType {
@@ -306,16 +317,66 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-
+        if (mBuilder.cancelListener != null) {
+            mBuilder.cancelListener.onCancel(dialog);
+        }
     }
 
     @Override
     public void onShow(DialogInterface dialog) {
+        if (mBuilder.showListener != null) {
+            mBuilder.showListener.onShow(dialog);
+        }
+    }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if (mBuilder.dismissListener != null) {
+            mBuilder.dismissListener.onDismiss(dialog);
+        }
     }
 
     @Override
     public void onClick(View v) {
+        DialogAction tag = (DialogAction) v.getTag();
+        switch (tag) {
+            case POSITIVE:
+                if (mBuilder.callback != null) {
+                    mBuilder.callback.onAny(this);
+                    mBuilder.callback.onPositive(this);
+                }
+                if (mBuilder.listCallbackSingleChoice != null) {
+                    sendSingleChoiceCallback(v);
+                }
+                if (mBuilder.listCallbackMultiChoice != null) {
+                    sendMultichoiceCallback();
+                }
+                if (mBuilder.autoDismiss) {
+                    dismiss();
+                }
+                break;
+
+            case NEGATIVE:
+                if (mBuilder.callback != null) {
+                    mBuilder.callback.onAny(this);
+                    mBuilder.callback.onNegative(this);
+                }
+                if (mBuilder.autoDismiss) {
+                    dismiss();
+                }
+                break;
+
+            case NEUTRAL:
+                if (mBuilder.callback != null) {
+                    mBuilder.callback.onAny(this);
+                    mBuilder.callback.onNeutral(this);
+                }
+                if (mBuilder.autoDismiss) {
+                    dismiss();
+                }
+                break;
+        }
 
     }
 
@@ -1380,7 +1441,7 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
         public void onAny(TalkDialog dialog) {
         }
 
-        public void onPositive(TalkDialog dialog, View v) {
+        public void onPositive(TalkDialog dialog) {
         }
 
         public void onNegative(TalkDialog dialog) {

@@ -1,10 +1,12 @@
 package com.talk.dialog.simple;
 
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.talk.dialog.TalkDialog;
 
@@ -30,6 +32,18 @@ public class MainActivity extends AppCompatActivity {
                         .backgroundColorRes(android.R.color.holo_blue_bright)
                         .radiusRes(R.dimen.radius)
                         .customView(R.layout.custom, false)
+                        .showListener(new DialogInterface.OnShowListener() {
+                            @Override
+                            public void onShow(DialogInterface dialog) {
+                                Toast.makeText(MainActivity.this, "show", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .cancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                Toast.makeText(MainActivity.this, "cancel", Toast.LENGTH_SHORT).show();
+                            }
+                        })
                         .show();
             }
         });
@@ -52,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
                         .backgroundColorRes(android.R.color.holo_blue_bright)
                         .radiusRes(R.dimen.radius)
                         .items(new CharSequence[]{"item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9"})
+                        .itemsCallback(new TalkDialog.ListCallback() {
+                            @Override
+                            public void onSelection(TalkDialog dialog, View itemView, int which, CharSequence text) {
+                                Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+                            }
+                        })
                         .show();
             }
         });
@@ -75,10 +95,18 @@ public class MainActivity extends AppCompatActivity {
                         .itemsCallbackSingleChoice(2, new TalkDialog.ListCallbackSingleChoice() {
                             @Override
                             public boolean onSelection(TalkDialog dialog, View itemView, int which, CharSequence text) {
+                                Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
                                 return false;
                             }
                         })
                         .show();
+            }
+        });
+
+        findViewById(R.id.single).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
     }
