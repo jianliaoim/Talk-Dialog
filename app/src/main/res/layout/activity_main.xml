@@ -1,20 +1,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+    tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/simple"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Simple"/>
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/list"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/simple"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Simple" />
+
+        <Button
+            android:id="@+id/list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="list" />
+
+        <Button
+            android:id="@+id/single"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="single" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="list"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/alert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="alert"/>
+    </LinearLayout>
 
 </LinearLayout>

@@ -93,7 +93,9 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
         int dividerId = dialog.getContext().getResources()
                 .getIdentifier("android:id/titleDivider", null, null);
         View divider = dialog.findViewById(dividerId);
-        divider.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        if (divider != null) {
+            divider.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
         return dialog;
     }
 
@@ -331,7 +333,9 @@ public class TalkDialog extends DialogFragment implements DialogInterface.OnShow
                 // If auto dismiss is enabled, dismiss the dialog when a list item is selected
                 dismiss();
             }
-            mBuilder.listCallback.onSelection(this, view, position, mBuilder.items[position]);
+            if (mBuilder.listCallback != null) {
+                mBuilder.listCallback.onSelection(this, view, position, mBuilder.items[position]);
+            }
         } else {
             // Default adapter, choice mode
             if (listType == ListType.MULTI) {
